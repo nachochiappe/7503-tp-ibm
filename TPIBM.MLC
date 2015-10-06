@@ -1,0 +1,40 @@
+**********************
+* Programa principal *
+**********************
+
+TPIBM		SUBENTRY BASES=(3)
+MENU		WTO			'1. Calcular la suma y/u ordenar 10 o menos fracciones'
+			WTO			'2. Mostrar una fraccion en su expresion decimal con una precision de hasta 5 digitos decimales'
+			WTO			'3. Expresar en forma fraccionaria un numero periodico ingresado por teclado'
+RESMENU		WTOR		'Ingrese el numero de opcion: ',OPCION,,WAITECB
+			CLI																				* Verificar el numero de opcion
+INGNUMER	WTOR		'Ingrese el numerador de la fraccion',NUMER,,WAITECB
+			WAIT		ECB=WAITECB
+INGDENOM	WTOR		'Ingrese el denominador de la fraccion',DENOM,,WAITECB
+			WAIT		ECB=WAITECB
+CANTFRAC	CLI			,10																	* Verificar que cantidad de fracciones sea < 10
+			BE			CALCUORD															* Si es = 10 bifurcar a CALCUORD
+PREGUNTA	WTOR		'¿Desea seguir ingresando fracciones? (S/N)',DENOM,,WAITECB
+			WAIT		ECB=WAITECB
+			CLI			,'S'
+			BE			INGNUMER
+CALCUORD	WTO			'1. Calcular la suma de las fracciones'
+			WTO			'2. Ordenar las fracciones ingresadas'
+			WTOR		'Ingrese el numero de opcion: ',OPCION,,WAITECB
+			CLI																				* Verificar el numero de opcion
+EXPDECIM	WTOR		'Ingrese una fraccion: ',VARIABLEFRACCION,,WAITECB					* Verificar para reutilizar ingreso de num y denom
+			WAIT		ECB=WAITECB
+PERAFRAC	WTOR		'Ingrese un numero periodico: ',NUMPERIO,,WAITECB
+			WAIT		ECB=WAITECB
+			SUBEXIT
+
+****************
+* Definiciones *
+****************
+
+NUMER		DS			CL4
+DENOM		DS			CL4
+OPCION		DS			CL1
+NUMPERIO	DS			* Chequear correspondiente para un numero periodico
+WAITECB		DC			F'0'
+			END
