@@ -1,0 +1,253 @@
+***********************************************************************
+*      	           75.03 ORGANIZACION DEL COMPUTADOR                  *
+*                                                                     *
+* ALUMNO: Ignacio Chiappe                                             *
+* PADRON: 90340                                                       *
+* TP: 103 IBM Mainframe Proteccion de informacion - Cifrado Playfair  *
+*                                                                     *
+***********************************************************************
+
+TP103		SUBENTRY BASES=(3)
+
+INICIO		WTOR	'Codificar (C) o Decodificar (D)? ',ELECT,,WAITECB
+			WAIT	ECB=WAITECB
+			LA		4,ELECT
+			BAL		5,VALELEC
+INGMSJ		WTOR	'Ingrese el mensaje: ',MENSAJE,,WAITECB
+			WAIT	ECB=WAITECB
+			LA		4,MENSAJE
+			BAL		5,VALIDOJ
+INGCLAVE	WTOR	'Ingrese la clave a utilizar: ',CLAVE,,WAITECB
+			WAIT	ECB=WAITECB
+			LA		4,CLAVE
+			BAL		5,VALIDOJ
+			B		CARGAMTZ
+CARGAMTZ	LA		8,MATRIZ
+			MVC		0(5,8),CLAVE
+			LA		4,CLAVE
+			LA		5,5
+			LA		6,25
+			LA		7,TABLETRA
+			LA		8,5(8)
+SIGCLAVE	CLC		0(1,4),0(7)
+			BE		SIGLETRA
+			LA		4,1(4)
+			BCT		5,SIGCLAVE
+			MVC		0(1,8),0(7)
+			LA		8,1(8)
+SIGLETRA	LA		4,CLAVE
+			LA		7,1(7)
+			LA		5,5
+			BCT		6,SIGCLAVE
+			LA		4,MENSAJE			* R4 <- Mensaje original
+			LA		7,NMENSAJE			* R7 <- Mensaje a mostrar
+COMPARA		CLI		0(4),X'40'
+			BE		FIN
+			MVC		DUPLA(1),0(4)
+			CLC		0(1,4),1(4)			* Compara letras consecutivas
+			BNE		DISTINTA
+			LA		4,1(4)
+			MVC		DUPLA+1(1),=C'X'
+			B		CODIDECO
+DISTINTA	CLI		1(4),X'40'
+			BNE		NOULTLET
+			MVC		DUPLA+1(1),=C'X'
+			B		SIGDIST
+NOULTLET	MVC		DUPLA+1(1),1(4)
+SIGDIST		LA		4,2(4)
+CODIDECO	LA		5,DUPLA
+			LA		6,MATRIZ
+			ZAP		CONTCOLU,=P'0'
+			ZAP		CONTFILA,=P'0'
+			ZAP		NUMLETRA,=P'0'
+CONTBUSC	LA		9,5
+BUSCALET	CLC		0(1,5),0(6)
+			BE		ENCONTRE
+			LA		6,1(6)
+			AP		CONTCOLU,=P'1'
+			BCT		9,BUSCALET
+			ZAP		CONTCOLU,=P'0'
+			AP		CONTFILA,=P'1'
+			B		CONTBUSC
+ENCONTRE	CP		NUMLETRA,=P'0'
+			BNE		ENCONTR2
+			ZAP		FILA1,CONTFILA
+			ZAP		COL1,CONTCOLU
+			ZAP		CONTCOLU,=P'0'
+			ZAP		CONTFILA,=P'0'
+			LA		5,1(5)
+			LA		6,MATRIZ
+			AP		NUMLETRA,=P'1'
+			B		CONTBUSC
+ENCONTR2	ZAP		NUMLETRA,=P'0'
+			ZAP		FILA2,CONTFILA
+			ZAP		COL2,CONTCOLU
+			CP		FILA1,FILA2
+			BE		MISMFILA
+DISTFILA	CP		COL1,COL2
+			BE		MISMCOLU
+
+*********************************************************************
+*                LETRAS EN DISTINTA FILA Y COLUMNA                  *
+*********************************************************************
+
+DISTCOLU	ZAP		ADICION,=P'0'
+			ZAP		ADICION2,=P'0'
+			ZAP		COLTEMP,COL2
+			ZAP		COL2,COL1
+			ZAP		COL1,COLTEMP
+			B		PROCESO
+
+*********************************************************************
+*                       LETRAS EN MISMA FILA                        *
+*********************************************************************
+			
+MISMFILA	CLI		ELECT,C'C'
+			BNE		MFDECO
+			
+MFCODI		CP		COL1,=P'4'			* Misma Fila Letra 1 (CODI)
+			BNE		NOULCOLU
+ULCOLU		ZAP		ADICION,=P'-4'
+			B		MFCODI2
+NOULCOLU	ZAP		ADICION,=P'1'
+MFCODI2		CP		COL2,=P'4'			* Misma Fila Letra 2 (CODI)
+			BNE		NOULCOL2
+ULCOLU2		ZAP		ADICION2,=P'-4'
+			B		PROCESO
+NOULCOL2	ZAP		ADICION2,=P'1'
+			B		PROCESO
+			
+MFDECO		CP		COL1,=P'0'			* Misma Fila Letra 1 (DECO)
+			BNE		NOPRCOLU
+PRCOLU		ZAP		ADICION,=P'4'
+			B		MFDECO2
+NOPRCOLU	ZAP		ADICION,=P'-1'
+MFDECO2		CP		COL2,=P'0'			* Misma Fila Letra 2 (DECO)
+			BNE		NOPRCOL2
+PRCOLU2		ZAP		ADICION2,=P'4'
+			B		PROCESO
+NOPRCOL2	ZAP		ADICION2,=P'-1'
+			B		PROCESO
+			
+*********************************************************************
+*                      LETRAS EN MISMA COLUMNA                      *
+*********************************************************************
+			
+MISMCOLU	CLI		ELECT,C'C'
+			BNE		MCDECO
+			
+MCCODI		CP		FILA1,=P'4'			* Misma Columna Letra 1 (CODI)
+			BNE		NOULFILA
+ULFILA		ZAP		ADICION,=P'-20'
+			B		MCCODI2
+NOULFILA	ZAP		ADICION,=P'5'
+MCCODI2		CP		FILA2,=P'4'			* Misma Columna Letra 2 (CODI)
+			BNE		NOULFIL2
+ULFILA2		ZAP		ADICION2,=P'-20'
+			B		PROCESO
+NOULFIL2	ZAP		ADICION2,=P'5'
+			B		PROCESO
+			
+MCDECO		CP		FILA1,=P'0'			* Misma Columna Letra 1 (DECO)
+			BNE		NOPRFILA
+PRFILA		ZAP		ADICION,=P'20'
+			B		MCDECO2
+NOPRFILA	ZAP		ADICION,=P'-5'
+MCDECO2		CP		FILA2,=P'0'			* Misma Columna Letra 2 (DECO)
+			BNE		NOPRFIL2
+PRFILA2		ZAP		ADICION2,=P'20'
+			B		PROCESO
+NOPRFIL2	ZAP		ADICION2,=P'-5'
+			B		PROCESO
+
+*********************************************************************
+*                      PROCESAMIENTO DE LETRAS                      *
+*********************************************************************
+			
+PROCESO		LA		6,MATRIZ
+			MP		FILA1,LONGFILA
+			AP		FILA1,COL1
+			ZAP		POSICION,FILA1
+			AP		POSICION,ADICION
+			CP		POSICION,=P'0'
+			BE		POSCERO
+			CVB		8,POSICION
+			B		RECORRO
+PROCESO2	LA		6,MATRIZ
+			MP		FILA2,LONGFILA
+			AP		FILA2,COL2
+			ZAP		POSICION,FILA2
+			AP		POSICION,ADICION2
+			CP		POSICION,=P'0'
+			BE		POSCERO
+			CVB		8,POSICION
+RECORRO		LA		6,1(6)
+			BCT		8,RECORRO
+POSCERO		MVC		0(1,7),0(6)
+			AP		NUMLETRA,=P'1'
+			LA		6,MATRIZ
+			LA		7,1(7)
+			CP		NUMLETRA,=P'2'
+			BNE		PROCESO2
+			B		COMPARA
+FIN			MVI		0(7),X'00'
+			WTO		'El mensaje es: '
+			WTO		MF=(E,WTOMSJ2)
+			WTO		'FIN'
+
+			SUBEXIT
+			
+*********************************************************************
+*                        SUBRUTINAS INTERNAS                        *
+*********************************************************************
+
+VALELEC		CLI		0(4),C'C'
+			BE		ESVALIDO
+			CLI		0(4),C'D'
+			BE		ESVALIDO
+			WTO		'Ingrese una letra correcta (C o D).'
+			B		INICIO
+VALIDOJ		CLI		0(4),X'00'
+			BE		ESVALIDO
+			CLI		0(4),C'J'
+			BE		TIENEJ
+			LA		4,1(4)
+			B		VALIDOJ
+TIENEJ		WTO		'El texto no puede tener J. Ingrese nuevamente.'
+			B		INGMSJ
+ESVALIDO	BR		5
+
+*********************************************************************
+*                      DECLARACION DE VARIABLES                     *
+*********************************************************************
+			
+ELECT		DS		CL1
+WTOMSJ		DC		H'104'
+			DC		H'0'
+MENSAJE		DS		CL100
+			DC		X'00'
+WTOMSJ2		DC		H'104'
+			DC		H'0'
+NMENSAJE	DS		CL100
+			DC		X'00'
+CLAVE		DS		CL5
+			DC		X'00'
+MATRIZ		DS		CL25
+WAITECB		DC		F'0'
+TABLETRA	DC		C'ABCDEFGHIKLMNOPQRSTUVWXYZ'
+DOBLE		DS		D
+DUPLA		DS		CL2
+NUMLETRA	DC		PL1'0'
+CONTFILA	DC		PL4'0'
+CONTCOLU	DC		PL4'0'
+FILA1		DS		PL8
+FILA2		DS		PL8
+COL1		DS		PL8
+COL2		DS		PL8
+COLTEMP		DS		PL8
+POSICION	DS		PL8
+ADICION		DS		PL2
+ADICION2	DS		PL2
+LONGFILA	DC		P'5'
+	
+			END
