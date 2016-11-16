@@ -21,7 +21,8 @@ INGCLAVE	WTOR	'Ingrese la clave a utilizar: ',CLAVE,,WAITECB
 			WAIT	ECB=WAITECB
 			LA		4,CLAVE
 			BAL		5,VALIDOJ
-			B		CARGAMTZ
+			LA		4,CLAVE
+			BAL		5,VALIDODU			
 CARGAMTZ	LA		8,MATRIZ
 			MVC		0(5,8),CLAVE
 			LA		4,CLAVE
@@ -196,9 +197,9 @@ FIN			MVI		0(7),X'00'
 			WTO		'FIN'
 
 			SUBEXIT
-			
+
 *********************************************************************
-*                        SUBRUTINAS INTERNAS                        *
+*                      RUTINAS DE VALIDACION                        *
 *********************************************************************
 
 VALELEC		CLI		0(4),C'C'
@@ -215,8 +216,19 @@ VALIDOJ		CLI		0(4),X'00'
 			B		VALIDOJ
 TIENEJ		WTO		'El texto no puede tener J. Ingrese nuevamente.'
 			B		INGMSJ
+VALIDODU	LA		6,0
+			LA		7,0
+			CLI		0(4),X'00'
+			BE		ESVALIDO
+			ICM		6,8,0(4)
+			LA		4,1(4)
+			ICM		7,8,0(4)
+			CLR		6,7
+			BNE		VALIDODU
+			WTO		'La clave tiene letras duplicadas.'
+			B		INGCLAVE
 ESVALIDO	BR		5
-
+			
 *********************************************************************
 *                      DECLARACION DE VARIABLES                     *
 *********************************************************************
