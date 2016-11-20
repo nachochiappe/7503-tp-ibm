@@ -208,7 +208,7 @@ VALELEC		CLI		0(4),C'C'
 			BE		ESVALIDO
 			WTO		'Ingrese una letra correcta (C o D).'
 			B		INICIO
-VALIDOJ		CLI		0(4),X'00'
+VALIDOJ		CLI		0(4),X'40'
 			BE		ESVALIDO
 			CLI		0(4),C'J'
 			BE		TIENEJ
@@ -218,7 +218,7 @@ TIENEJ		WTO		'El texto no puede tener J. Ingrese nuevamente.'
 			B		INGMSJ
 VALIDODU	LA		6,0
 			LA		7,0
-			CLI		0(4),X'00'
+			CLI		0(4),X'40'
 			BE		ESVALIDO
 			ICM		6,8,0(4)
 			LA		4,1(4)
@@ -237,13 +237,13 @@ ELECT		DS		CL1
 WTOMSJ		DC		H'104'
 			DC		H'0'
 MENSAJE		DS		CL100
-			DC		X'00'
+			DC		X'40'
 WTOMSJ2		DC		H'104'
 			DC		H'0'
 NMENSAJE	DS		CL100
 			DC		X'00'
-CLAVE		DS		CL5
-			DC		X'00'
+CLAVE		DS		CL25
+			DC		X'40'
 MATRIZ		DS		CL25
 WAITECB		DC		F'0'
 TABLETRA	DC		C'ABCDEFGHIKLMNOPQRSTUVWXYZ'
